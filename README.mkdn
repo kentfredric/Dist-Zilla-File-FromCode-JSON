@@ -1,0 +1,77 @@
+# NAME
+
+Dist::Zilla::File::FromCode::JSON - A container for arbitrary data that JSONifies on demand.
+
+# VERSION
+
+version 0.001000
+
+# SYNOPSIS
+
+## Creating
+
+    use Dist::Zilla::File::FromCode::JSON;
+
+    my $file = Dist::Zilla::File::FromCode::JSON->new(
+        data_code => sub {
+          # lazy
+          return { some, data, structure, here };
+        },
+    );
+    ...
+    $self->add($file);
+
+## Munging as Data
+
+In a munger:
+
+    if ( $file->isa('Dist::Zilla::File::FromCode::JSON') ) {
+      $file->add_json_munger(sub {
+        my ( $data ) = shift; ### Get data
+        # modify $data
+        return $data; #### IMPORTANT #####
+      });
+    }
+
+## Munging as Text
+
+    my $code = $file->code;
+    $file->code(sub {
+       my $content = $code->();
+       # twiddle $content
+       return $content;
+    });
+
+## Serializing
+
+    $file->encoded_content(); # json byte stream.
+
+## Converting from existing `File` nodes
+
+    my $file = Dist::Zilla::File::FromCode::JSON->convert( $old_file );
+
+## Converting from existing `File` nodes in-place.
+
+    for my $file ( @{ $zilla->files }) {
+      Dist::Zilla::File::FromCode::JSON->convert_in_place( $zilla, $file );
+      $file->add_json_munger(sub {
+
+      });
+    }
+
+# ATTRIBUTES
+
+## `data_code`
+
+**REQUIRED:** A `CodeRef` that returns _initial_ data.
+
+# AUTHOR
+
+Kent Fredric <kentfredric@gmail.com>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Kent Fredric <kentfredric@gmail.com>.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
